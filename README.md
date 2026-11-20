@@ -15,7 +15,7 @@ A full-stack web application where students create professional resumes, improve
 
 ## Tech stack
 
-- **Frontend:** Next.js 14 (App Router), React 18, Tailwind CSS, lucide-react, html2pdf.js
+- **Frontend:** Next.js 14 (App Router), React 18, Tailwind CSS, lucide-react, browser print-to-PDF
 - **Backend:** Node.js, Express, Mongoose, JWT, bcryptjs, helmet, express-rate-limit
 - **Database:** MongoDB Atlas (or local MongoDB)
 - **AI:** OpenAI or Google Gemini (optional) – a built-in rule-based engine is used when no key is set

@@ -2,6 +2,7 @@
 
 import Link from "next/link";
 import { useCallback, useEffect, useRef, useState } from "react";
+import { createPortal } from "react-dom";
 import { useRouter } from "next/navigation";
 import {
   Award, Briefcase, CheckCircle2, Download, Eye, FolderGit2, GraduationCap, LayoutTemplate, Pencil, Save, ScanSearch, User, Wrench,
@@ -9,7 +10,7 @@ import {
 import { api } from "@/lib/api";
 import { useRequireAuth } from "@/lib/auth";
 import { blankItems, emptyResume, TEMPLATES } from "@/lib/resume";
-import { downloadPdf } from "@/lib/pdf";
+import { printResume } from "@/lib/pdf";
 import ResumeDocument from "@/components/templates";
 import Spinner from "@/components/Spinner";
 import { Accordion, AiButton, Field, ListEditor, SkillsInput, TextArea } from "./fields";
@@ -51,8 +52,6 @@ export default function ResumeEditor({ id }) {
   const [grammar, setGrammar] = useState(null);
   const [aiTips, setAiTips] = useState({});
   const [mobileView, setMobileView] = useState("edit");
-  const [exporting, setExporting] = useState(false);
-  const pdfRef = useRef(null);
   const previewBox = useRef(null);
   const [scale, setScale] = useState(0.6);
 
@@ -166,16 +165,9 @@ export default function ResumeEditor({ id }) {
       setAiTips((t) => ({ ...t, [`${section}-${index}`]: d.tips || [] }));
     });
 
-  async function exportPdf() {
-    setExporting(true);
-    try {
-      const name = (resume.personal?.fullName || resume.title || "resume").trim().replace(/\s+/g, "_");
-      await downloadPdf(pdfRef.current, `${name}_Resume.pdf`);
-    } catch (err) {
-      setError(`PDF export failed: ${err.message}`);
-    } finally {
-      setExporting(false);
-    }
+  function exportPdf() {
+    const name = (resume.personal?.fullName || resume.title || "resume").trim().replace(/\s+/g, "_");
+    printResume(`${name}_Resume`);
   }
 
   if (!ready || (!resume && !error)) return <Spinner />;
@@ -203,8 +195,8 @@ export default function ResumeEditor({ id }) {
               <ScanSearch size={16} /> Analyze
             </button>
           )}
-          <button onClick={exportPdf} className="btn-secondary" disabled={exporting}>
-            <Download size={16} /> {exporting ? "Exporting..." : "Download PDF"}
+          <button onClick={exportPdf} className="btn-secondary">
+            <Download size={16} /> Download PDF
           </button>
           <button onClick={save} className="btn-primary" disabled={saving}>
             <Save size={16} /> {saving ? "Saving..." : "Save"}
@@ -223,7 +215,7 @@ export default function ResumeEditor({ id }) {
       </div>
 
       <div className="grid gap-6 lg:grid-cols-2">
-        <div className={`space-y-4 ${mobileView === "preview" ? "hidden lg:block" : ""}`}>
+        <div className={`min-w-0 space-y-4 ${mobileView === "preview" ? "hidden lg:block" : ""}`}>
           <Accordion title="Template" icon={LayoutTemplate}>
             <div className="grid gap-3 sm:grid-cols-3">
               {TEMPLATES.map((t) => (
@@ -381,7 +373,7 @@ export default function ResumeEditor({ id }) {
           </Accordion>
         </div>
 
-        <div className={`${mobileView === "edit" ? "hidden lg:block" : ""}`}>
+        <div className={`min-w-0 ${mobileView === "edit" ? "hidden lg:block" : ""}`}>
           <div className="sticky top-20">
             <div className="mb-2 flex items-center justify-between text-sm text-slate-500">
               <span className="flex items-center gap-1"><Eye size={14} /> Live preview · {TEMPLATES.find((t) => t.id === resume.template)?.name}</span>
@@ -397,10 +389,12 @@ export default function ResumeEditor({ id }) {
         </div>
       </div>
 
-      {/* Unscaled copy used for PDF export */}
-      <div aria-hidden className="pointer-events-none fixed left-[-10000px] top-0">
-        <ResumeDocument ref={pdfRef} resume={resume} />
-      </div>
+      {createPortal(
+        <div className="print-root">
+          <ResumeDocument resume={resume} />
+        </div>,
+        document.body
+      )}
     </div>
   );
 }

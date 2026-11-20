@@ -32,3 +32,23 @@ body {
     @apply rounded-2xl border border-slate-200 bg-white shadow-sm;
   }
 }
+
+/* Only the resume document is printed (used for "Download PDF"). */
+.print-root {
+  display: none;
+}
+
+@media print {
+  @page {
+    size: A4;
+    margin: 0;
+  }
+  body > *:not(.print-root) {
+    display: none !important;
+  }
+  .print-root {
+    display: block;
+    -webkit-print-color-adjust: exact;
+    print-color-adjust: exact;
+  }
+}
