@@ -1,5 +1,6 @@
 const User = require("../models/User");
 const Resume = require("../models/Resume");
+const { escapeRegex } = require("../services/textUtils");
 
 exports.stats = async (req, res, next) => {
   try {
@@ -31,7 +32,7 @@ exports.stats = async (req, res, next) => {
 
 exports.listUsers = async (req, res, next) => {
   try {
-    const q = (req.query.q || "").trim();
+    const q = escapeRegex((req.query.q || "").trim());
     const filter = q
       ? { $or: [{ name: { $regex: q, $options: "i" } }, { email: { $regex: q, $options: "i" } }] }
       : {};
