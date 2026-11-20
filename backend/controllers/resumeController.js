@@ -78,7 +78,7 @@ exports.duplicate = async (req, res, next) => {
     delete data._id;
     delete data.createdAt;
     delete data.updatedAt;
-    const copy = await Resume.create({ ...data, title: `${src.title} (Copy)` });
+    const copy = await Resume.create({ ...data, title: `${src.title.slice(0, 113)} (Copy)` });
     res.status(201).json({ resume: copy });
   } catch (err) {
     next(err);
