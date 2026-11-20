@@ -97,7 +97,7 @@ export default function ResumeEditor({ id }) {
   const setPersonal = (k) => (v) => patch({ personal: { ...resume.personal, [k]: v } });
 
   const save = useCallback(async () => {
-    if (!resume) return;
+    if (!resume) return false;
     setSaving(true);
     setError("");
     try {
@@ -112,8 +112,10 @@ export default function ResumeEditor({ id }) {
       }
       setDirty(false);
       setStatus("Saved");
+      return true;
     } catch (err) {
       setError(err.message);
+      return false;
     } finally {
       setSaving(false);
     }
@@ -197,7 +199,7 @@ export default function ResumeEditor({ id }) {
           {status && !dirty && <span className="flex items-center gap-1 text-sm text-emerald-600"><CheckCircle2 size={14} /> {status}</span>}
           {dirty && <span className="text-sm text-amber-600">Unsaved changes</span>}
           {resumeId && (
-            <button onClick={async () => { if (dirty) await save(); router.push(`/analyzer?resume=${resumeId}`); }} className="btn-secondary">
+            <button onClick={async () => { if (dirty && !(await save())) return; router.push(`/analyzer?resume=${resumeId}`); }} className="btn-secondary">
               <ScanSearch size={16} /> Analyze
             </button>
           )}
