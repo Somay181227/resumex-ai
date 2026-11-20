@@ -148,10 +148,14 @@ function fallbackGrammar(text) {
       corrected = corrected.replace(rule.re, rule.fix);
     }
   }
-  corrected = corrected
+  const capitalized = corrected
     .split("\n")
     .map((line) => line.replace(/(^\s*|[.!?]\s+)([a-z])/g, (m, a, b) => a + b.toUpperCase()))
     .join("\n");
+  if (capitalized !== corrected) {
+    issues.push({ message: "Capitalize the first letter of each sentence", occurrences: 1, examples: [] });
+    corrected = capitalized;
+  }
   if (/\b(I|me|my)\b/.test(corrected)) {
     issues.push({ message: "Avoid first-person pronouns (I, me, my) in resumes", occurrences: 1, examples: [] });
   }
