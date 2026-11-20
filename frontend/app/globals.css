@@ -43,7 +43,7 @@ body {
     size: A4;
     margin: 0;
   }
-  body > *:not(.print-root) {
+  body:has(> .print-root) > *:not(.print-root) {
     display: none !important;
   }
   .print-root {
