@@ -21,7 +21,7 @@ exports.list = async (req, res, next) => {
 
 exports.stats = async (req, res, next) => {
   try {
-    const resumes = await Resume.find({ user: req.user._id }).select("lastAtsScore template updatedAt");
+    const resumes = await Resume.find({ user: req.user._id }).select("lastAtsScore template updatedAt").sort({ updatedAt: -1 });
     const scored = resumes.filter((r) => typeof r.lastAtsScore === "number");
     const avg = scored.length ? Math.round(scored.reduce((s, r) => s + r.lastAtsScore, 0) / scored.length) : null;
     const best = scored.length ? Math.max(...scored.map((r) => r.lastAtsScore)) : null;
